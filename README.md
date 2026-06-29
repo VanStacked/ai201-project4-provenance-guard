@@ -191,6 +191,7 @@ Every submission and appeal is logged to `audit_log.jsonl`. Sample entries:
 
     {"content_id": "d524e57b-676c-4a17-967c-97e97cb58ca9", "creator_id": "test-user-1", "timestamp": "2026-06-29T11:52:39.423066", "attribution": "uncertain", "confidence": 0.679, "llm_score": 0.8, "stylo_score": 0.453, "status": "under_review", "appeal_reasoning": "I wrote this myself. I am a non-native English speaker and my formal writing style may appear AI-generated."}
     {"content_id": "b234a338-4a4e-4916-ba43-73445cc8f340", "creator_id": "test-user-2", "timestamp": "2026-06-29T11:53:00.326554", "attribution": "likely_human", "confidence": 0.186, "llm_score": 0.1, "stylo_score": 0.347, "status": "classified", "appeal_reasoning": null}
+    {"content_id": "2b3233e8-e3f7-470f-9fb0-4cb95930f045", "creator_id": "demo-3", "timestamp": "2026-06-29T12:35:35.741800", "attribution": "likely_ai", "confidence": 0.754, "llm_score": 0.8, "stylo_score": 0.67, "status": "classified", "appeal_reasoning": null}
 
 ---
 
@@ -205,4 +206,12 @@ Every submission and appeal is logged to `audit_log.jsonl`. Sample entries:
 
 **One way the spec helped:** Defining the three confidence thresholds (0.75 / 0.35) in planning.md before coding meant the label generation function had a clear contract to implement against — no guessing at the boundary values during coding.
 
-**One way implementation diverged:** The planning doc assumed the stylometric signal would be the weaker signal. In practice, the LLM signal was far more reliable on casual human text, which is why its weight
+**One way implementation diverged:** The planning doc assumed the stylometric signal would be the weaker signal. In practice, the LLM signal was far more reliable on casual human text, which is why its weight was increased to 65%.
+
+---
+
+## AI Usage
+
+1. **App skeleton and LLM signal:** Provided the architecture diagram and detection signals spec to Claude. It generated the Flask route structure and the Groq prompt. I revised the prompt to return only a float (the first version returned a paragraph of explanation), and adjusted the score parsing to strip punctuation before casting to float.
+
+2. **Stylometric signal:** Provided the three metrics (sentence variance, TTR, punctuation density) to Claude with the spec. It generated the function. I tested it against formal human writing and found it was over-penalizing academic text, so I adjusted the variance normalization divisor from 100 to 50 to make the signal less aggressive.
